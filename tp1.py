@@ -1,5 +1,6 @@
 import random
 import math
+import matplotlib.pyplot as plt
 
 # ─────────────────────────────────────────
 #  PARÁMETROS DEL PROBLEMA
@@ -74,17 +75,19 @@ def mutacion(cromosoma: list[int]) -> list[int]:
             cromosoma[i] = 1 - cromosoma[i]
     return cromosoma
 
-def estadisticas(poblacion):
+def estadisticas(poblacion, lista_fitness):
     valores = [funcion_objetivo(ind) for ind in poblacion]
     maximo   = max(valores)
     minimo   = min(valores)
-    promedio = sum(valores) / len(valores)
+    promedio_f = sum(lista_fitness) / len(lista_fitness)
+    promedio   = sum(valores) / len(valores)
     
     # Desviación estándar: σ = sqrt(Σ(fi - f̄)² / N)
-    varianza = sum((f - promedio) ** 2 for f in valores) / len(valores)
+    varianza = sum((f - promedio_f) ** 2 for f in lista_fitness) / len(poblacion)
     desv_std = varianza ** 0.5
 
     idx_max = valores.index(maximo)
+
     return {
         "maximo":    maximo,
         "minimo":    minimo,
@@ -93,14 +96,37 @@ def estadisticas(poblacion):
         "cromosoma": poblacion[idx_max]
     }
 
+def graficar_historial(historial):
+    ciclos = list(range(1, len(historial) + 1))
+    maximos = [h["maximo"] for h in historial]
+    minimos = [h["minimo"] for h in historial]
+    promedios = [h["promedio"] for h in historial]
+
+    plt.figure(figsize=(10, 5))
+    plt.plot( maximos,   label="Máximo",   color="steelblue",  linewidth=2)
+    plt.plot( promedios, label="Promedio", color="seagreen",   linewidth=2)
+    plt.plot( minimos,   label="Mínimo",   color="tomato",     linewidth=2, linestyle="--")
+
+    plt.title(f"Evolución del AG — {CICLOS} generaciones")
+    plt.xlabel("Generación")
+    plt.ylabel("F. objetivo")
+    plt.ylim(0, 1.05)
+    plt.legend()
+    plt.grid(True, alpha=0.3)
+    plt.tight_layout()
+    plt.savefig(f"ag_{CICLOS}_generaciones.png", dpi=150)
+    plt.show()
+
 poblacion = [individuo_aleatorio() for _ in range(TAM_POBLACION)]
-historial = [] 
+lista_fitness = fitness(poblacion)
+historial = []
+historial.append(estadisticas(poblacion, lista_fitness))
 
 
 print("POBLACIÓN INICIAL")
 print("")
 
-for ciclo in range(1, CICLOS + 1):
+for ciclo in range(CICLOS - 1):
     lista_fitness = fitness(poblacion)
     nueva_poblacion = []
 
@@ -115,7 +141,10 @@ for ciclo in range(1, CICLOS + 1):
             nueva_poblacion.append(hijo2)
     
     poblacion = nueva_poblacion[:]
-    historial.append(estadisticas(poblacion))
+    historial.append(estadisticas(poblacion, lista_fitness))
+
+graficar_historial(historial)
+
 
 print(f"{'Ciclo':>6} | {'Máximo':>10} | {'Mínimo':>10} | {'Promedio':>10} | {'Desv.Std':>10} | Cromosoma del máximo")
 print("─" * 105)
