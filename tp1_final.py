@@ -12,7 +12,7 @@ PROB_MUTACION  = 0.05
 T              = 4
 ELITE_SIZE     = 2
 
-METODO = "elitismo"      
+METODO = "elitismo" 
 GENERACIONES = [20, 100, 200]  
 GENERACIONES_ELITISMO = [100]  
 
