@@ -11,46 +11,9 @@ PROB_MUTACION  = 0.05
 T              = 4
 ELITE_SIZE     = 2
 
-<<<<<<< HEAD
 METODO = "ruleta"
 GENERACIONES = [20, 100, 200]
 GENERACIONES_ELITISMO = [100]
-=======
-METODO = "elitismo" 
-GENERACIONES = [20, 100, 200]  
-GENERACIONES_ELITISMO = [100]  
-
-COLOR_HEADER   = "1F4E79"
-COLOR_GEN0     = "D6E4F0"
-COLOR_RESUMEN  = "1F4E79"
-COLOR_FILA_PAR = "EBF5FB"
-FUENTE         = "Arial"
-
-borde_fino = Border(
-    left   = Side(style="thin", color="BFBFBF"),
-    right  = Side(style="thin", color="BFBFBF"),
-    top    = Side(style="thin", color="BFBFBF"),
-    bottom = Side(style="thin", color="BFBFBF"),
-)
-
-def estilo_header(cell, color_fondo=COLOR_HEADER):
-    cell.font      = Font(name=FUENTE, bold=True, color="FFFFFF", size=11)
-    cell.fill      = PatternFill("solid", fgColor=color_fondo)
-    cell.alignment = Alignment(horizontal="center", vertical="center")
-    cell.border    = borde_fino
-
-def estilo_dato(cell, fila_par=False, negrita=False, color_fondo=None):
-    fondo          = color_fondo if color_fondo else (COLOR_FILA_PAR if fila_par else "FFFFFF")
-    cell.font      = Font(name=FUENTE, bold=negrita, size=10)
-    cell.fill      = PatternFill("solid", fgColor=fondo)
-    cell.alignment = Alignment(horizontal="center", vertical="center")
-    cell.border    = borde_fino
-    cell.number_format = "0.0000000000"
-
-def ancho_columnas(ws, anchos):
-    for col, ancho in anchos.items():
-        ws.column_dimensions[col].width = ancho
->>>>>>> 41fab48df4abd5b3778cec98122b3e550b0f2388
 
 
 def bits_a_dec(cromosoma):
@@ -147,7 +110,7 @@ def correr_ag(n_ciclos):
     lista_fitness = fitness(poblacion)
     historial     = [estadisticas(poblacion, lista_fitness)]
     t0 = time.perf_counter()
-    for _ in range(n_ciclos):
+    for _ in range(n_ciclos - 1):
         nueva_poblacion = []
         while len(nueva_poblacion) < TAM_POBLACION:
             padre1, padre2 = seleccionar(poblacion, lista_fitness)
