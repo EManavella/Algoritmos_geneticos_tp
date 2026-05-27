@@ -202,11 +202,16 @@ def correr_ag_elitismo(n_ciclos):
     historial     = [estadisticas(poblacion, lista_fitness)]
     t0 = time.perf_counter()
     for _ in range(n_ciclos):
-        # ordena la población por fitness de mayor a menor y selecciona los mejores individuos para pasarlos directamente a la nueva población
-        pares_ordenados = sorted(zip(lista_fitness, poblacion), reverse=True)
-        elite = [ind[:] for _, ind in pares_ordenados[:ELITE_SIZE]]
+        # ordenar población de mayor a menor fitness
+        indices_ordenados = sorted(range(len(lista_fitness)), key=lambda i: lista_fitness[i], reverse=True)
+
+        # seleccionar los mejores ELITE_SIZE individuos
+        elite = []
+        for i in indices_ordenados[:ELITE_SIZE]:
+            elite.append(poblacion [i])
+
         nueva_poblacion = elite[:]
-        # mientras la nueva población no alcance el tamaño deseado, se generan nuevos individuos mediante selección, crossover y mutación
+        # mientras la nueva población no alcance el tamaño deseado, se generan nuevos individuos mediante ruleta, crossover y mutación
         while len(nueva_poblacion) < TAM_POBLACION:
             padre1, padre2 = ruleta(poblacion, lista_fitness)
             hijo1, hijo2   = crossover1punto(padre1, padre2)
