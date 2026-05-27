@@ -135,10 +135,13 @@ def estadisticas(poblacion, lista_fitness):
 
 
 def correr_ag(n_ciclos):
+    #genera poblacion inicial
     poblacion     = [cromosoma_aleatorio() for _ in range(TAM_POBLACION)]
+    #calcula el fitness de la poblacion inicial y guarda las estadisticas y el tiempo inicial
     lista_fitness = fitness(poblacion)
     historial     = [estadisticas(poblacion, lista_fitness)]
     t0 = time.perf_counter()
+    # repite 20/100/200 veces el proceso de selección, crossover y mutación para generar nuevas poblaciones, calculando el fitness y guardando las estadísticas en cada ciclo
     for _ in range(n_ciclos - 1):
         nueva_poblacion = []
         while len(nueva_poblacion) < TAM_POBLACION:
@@ -152,6 +155,7 @@ def correr_ag(n_ciclos):
         poblacion     = nueva_poblacion[:]
         lista_fitness = fitness(poblacion)
         historial.append(estadisticas(poblacion, lista_fitness))
+    #me devuelve el historial de estadísticas y el tiempo total transcurrido desde t0 hasta el final del proceso
     return historial, time.perf_counter() - t0
 
 def correr_ag_elitismo(n_ciclos):
@@ -160,9 +164,11 @@ def correr_ag_elitismo(n_ciclos):
     historial     = [estadisticas(poblacion, lista_fitness)]
     t0 = time.perf_counter()
     for _ in range(n_ciclos):
+        # ordena la población por fitness de mayor a menor y selecciona los mejores individuos para pasarlos directamente a la nueva población
         pares_ordenados = sorted(zip(lista_fitness, poblacion), reverse=True)
         elite = [ind[:] for _, ind in pares_ordenados[:ELITE_SIZE]]
         nueva_poblacion = elite[:]
+        # mientras la nueva población no alcance el tamaño deseado, se generan nuevos individuos mediante selección, crossover y mutación
         while len(nueva_poblacion) < TAM_POBLACION:
             padre1, padre2 = ruleta(poblacion, lista_fitness)
             hijo1, hijo2   = crossover1punto(padre1, padre2)
@@ -171,6 +177,7 @@ def correr_ag_elitismo(n_ciclos):
             nueva_poblacion.append(hijo1)
             if len(nueva_poblacion) < TAM_POBLACION:
                 nueva_poblacion.append(hijo2)
+        # actualiza la población con la nueva generación y calcula su fitness y estadísticas
         poblacion     = nueva_poblacion[:]
         lista_fitness = fitness(poblacion)
         historial.append(estadisticas(poblacion, lista_fitness))
@@ -178,6 +185,7 @@ def correr_ag_elitismo(n_ciclos):
 
 
 def graficar(historial, n_ciclos, metodo):
+    # extrae los valores de máximo, mínimo y promedio de cada generacion para graficarlos
     ciclos    = list(range(len(historial)))
     maximos   = [h["maximo"]   for h in historial]
     minimos   = [h["minimo"]   for h in historial]
@@ -201,6 +209,7 @@ def graficar(historial, n_ciclos, metodo):
 
 
 def exportar_excel(todos_resultados, tiempos, metodo):
+    #se exportan los resultados a excel
     wb = Workbook()
     wb.remove(wb.active)
 
