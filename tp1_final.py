@@ -12,7 +12,7 @@ PROB_MUTACION  = 0.05
 T              = 4
 ELITE_SIZE     = 2
 
-METODO = "torneo" # "ruleta", "torneo" o "elitismo"
+METODO = "ruleta" # "ruleta", "torneo" o "elitismo"
 GENERACIONES = [20, 100, 200]
 GENERACIONES_ELITISMO = [100]
 
@@ -38,8 +38,12 @@ def fitness(poblacion):
 
 
 def ruleta(poblacion, lista_fitness):
+    """"
+    MÉTODO DE SELECCIÓN POR RULETA
+     - cada individuo ocupa una cantidad de casillas proporcional a su fitness
+    """
     casillas = []
-    # cada individuo ocupa una cantidad de casillas proporcional a su fitness 
+    # cada individuo ocupa una cantidad de casillas proporcional a su fitness y no fuerza a que sean 100 posiciones
     for f in lista_fitness:
         cantidad = round(f * 100)
         # si queda en 0, le asignamos 1 para que tenga al menos una casilla y no quede fuera de la selección
@@ -47,16 +51,25 @@ def ruleta(poblacion, lista_fitness):
             cantidad = 1
         casillas.append(cantidad)
     array_ruleta = []
+    # para cada indice y su cantidad de casillas, agregamos el indice a la ruleta esa cantidad de veces
     for indice, cantidad in enumerate(casillas):
         for _ in range(cantidad):
             array_ruleta.append(indice)
+    # seleccionamos dos padres al azar de la ruleta
     padre1 = poblacion[array_ruleta[random.randint(0, len(array_ruleta) - 1)]]
     padre2 = poblacion[array_ruleta[random.randint(0, len(array_ruleta) - 1)]]
     return padre1, padre2
 
+
+
 def torneo(poblacion, lista_fitness):
-    def un_torneo():
-        #selecciona T individuos al azar 
+    """"
+    MÉTODO DE SELECCIÓN POR TORNEO
+        - se seleccionan T individuos al azar y el que tenga el mayor fitness es el ganador
+    """
+    def un_torneo(): 
+
+        #selecciona T individuo s al azar 
         indices = random.sample(range(len(poblacion)), T)
         #max lo asignamos como el fitness del primer indiv que aparece en la lista de indices
         max = lista_fitness[indices[0]]
@@ -71,6 +84,7 @@ def torneo(poblacion, lista_fitness):
     return un_torneo(), un_torneo()
 
 def seleccionar(poblacion, lista_fitness):
+    # dependiendo del método elegido, se llama a la función de selección correspondiente
     if METODO == "ruleta":
         return ruleta(poblacion, lista_fitness)
     elif METODO == "torneo":
@@ -78,6 +92,7 @@ def seleccionar(poblacion, lista_fitness):
 
 
 def crossover1punto(padre1, padre2):
+    # con probabilidad PROB_CROSSOVER, se elige un punto de cruce al azar y se intercambian las partes de los padres para crear dos hijos
     if random.random() <= PROB_CROSSOVER:
         punto = random.randint(1, NUM_BITS - 1)
         hijo1 = padre1[:punto] + padre2[punto:]
@@ -101,14 +116,15 @@ def mutacion(cromosoma):
 
 
 def estadisticas(poblacion, lista_fitness):
+    # calcula el valor objetivo de cada individuo, luego obtiene el máximo, mínimo, promedio, desviación estándar y el cromosoma del máximo
     valores    = [funcion_objetivo(ind) for ind in poblacion]
     maximo     = max(valores)
     minimo     = min(valores)
     promedio   = sum(valores) / len(valores)
-    promedio_f = sum(lista_fitness) / len(lista_fitness)
-    varianza   = sum((f - promedio_f) ** 2 for f in lista_fitness) / len(lista_fitness)
+    promedio_f = sum(lista_fitness) / len(lista_fitness) #promedio de fitness que se usa para calcular la varianza
+    varianza   = sum((f - promedio_f) ** 2 for f in lista_fitness) / len(lista_fitness) 
     desv_std   = varianza ** 0.5
-    idx_max    = valores.index(maximo)
+    idx_max    = valores.index(maximo) # índice del individuo con el valor objetivo máximo, que se usará para obtener su cromosoma
     return {
         "maximo":    maximo,
         "minimo":    minimo,
