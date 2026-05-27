@@ -3,6 +3,7 @@ import time
 import matplotlib.pyplot as plt
 from openpyxl import Workbook
 
+# definiciones y parámetros
 NUM_BITS       = 30
 COEF           = 2**NUM_BITS - 1
 TAM_POBLACION  = 10
@@ -11,22 +12,26 @@ PROB_MUTACION  = 0.05
 T              = 4
 ELITE_SIZE     = 2
 
-METODO = "ruleta"
+METODO = "torneo" # "ruleta", "torneo" o "elitismo"
 GENERACIONES = [20, 100, 200]
 GENERACIONES_ELITISMO = [100]
 
 
 def bits_a_dec(cromosoma):
+    # convierte una lista de bits a su valor decimal
     return int("".join(str(b) for b in cromosoma), 2)
 
 def cromosoma_aleatorio():
+    # genera un cromosoma aleatorio de NUM_BITS bits
     return [random.randint(0, 1) for _ in range(NUM_BITS)]
 
 def funcion_objetivo(cromosoma):
+    # convierte el cromosoma a decimal y calcula su valor objetivo
     x = bits_a_dec(cromosoma)
     return (x / COEF) ** 2
 
 def fitness(poblacion):
+    # calcula el fitness de cada individuo y normaliza la lista para que sume 1
     fobj  = [funcion_objetivo(ind) for ind in poblacion]
     total = sum(fobj)
     return [f / total for f in fobj]
@@ -34,8 +39,10 @@ def fitness(poblacion):
 
 def ruleta(poblacion, lista_fitness):
     casillas = []
+    # cada individuo ocupa una cantidad de casillas proporcional a su fitness 
     for f in lista_fitness:
         cantidad = round(f * 100)
+        # si queda en 0, le asignamos 1 para que tenga al menos una casilla y no quede fuera de la selección
         if cantidad == 0:
             cantidad = 1
         casillas.append(cantidad)
@@ -49,9 +56,18 @@ def ruleta(poblacion, lista_fitness):
 
 def torneo(poblacion, lista_fitness):
     def un_torneo():
+        #selecciona T individuos al azar 
         indices = random.sample(range(len(poblacion)), T)
-        ganador = max(indices, key=lambda i: lista_fitness[i])
+        #max lo asignamos como el fitness del primer indiv que aparece en la lista de indices
+        max = lista_fitness[indices[0]]
+        ganador = indices[0]
+        #loopeamos la lista a ver si hay un fitness mayor 
+        for i in indices:
+            if lista_fitness[i] > max:
+                max = lista_fitness[i]
+                ganador = i
         return poblacion[ganador]
+    #retorna dos padres ganadores de dos torneos distintos
     return un_torneo(), un_torneo()
 
 def seleccionar(poblacion, lista_fitness):
@@ -74,16 +90,13 @@ def mutacion(cromosoma):
     cromosoma_mutado = cromosoma[:]
 
     if random.random() <= PROB_MUTACION:
-        print(f"  → Cromosoma sin mutar: {cromosoma_mutado}")
         #el limite inferior no puede ser el ultimo bit porque sino no hay mutación
         limite_inferior = random.randint(0, NUM_BITS - 2)
         limite_superior = random.randint(limite_inferior + 1, NUM_BITS - 1)
-        print("limite superor:", limite_superior)
-        print("limite inferior:", limite_inferior)
         #el slincing no toma en cuenta el último indice, por eso se le suma 1
         # pisa lo que hay de i:j con lo mismo pero recorrido al revés 
         cromosoma_mutado[limite_inferior:limite_superior+1] = cromosoma_mutado[limite_inferior:limite_superior+1][::-1]
-        print(f"  → Cromosoma  mutado: {cromosoma_mutado}")
+      
     return cromosoma_mutado
 
 
@@ -199,7 +212,7 @@ def exportar_excel(todos_resultados, tiempos, metodo):
 
     nombre = f"resultados_{metodo}.xlsx"
     wb.save(nombre)
-    print(f"\n  → Excel guardado: {nombre}")
+
 
 
 tiempos          = {}
@@ -219,4 +232,4 @@ for n in gens:
     print(f"  Tiempo de ejecución: {tiempo:.6f} s")
 
 exportar_excel(todos_resultados, tiempos, METODO)
-print(f"\n  ✓ Fin — Método: {METODO.capitalize()}")
+print(f"\n   Fin — Método: {METODO.capitalize()}")
