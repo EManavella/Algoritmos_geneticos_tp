@@ -313,7 +313,7 @@ def exportar_excel(todos_resultados, tiempos, metodo):
             3: 14,   # Minimo
             4: 14,   # Promedio
             5: 16,   # Desv. Std
-            6: 42,   # Cromosoma del maximo
+            6: 63,   # Cromosoma del maximo
             7: 18,   # Fitness del maximo
             8: 4,    # separador vacío
             9: 26,   # etiqueta resumen
